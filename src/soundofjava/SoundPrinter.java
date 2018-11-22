@@ -17,7 +17,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  * @author Jonathon Zeitler
  */
 public class SoundPrinter {
-    private static final float DEFAULT_RATE = 44100;
+    public static final float DEFAULT_RATE = 44100;
     private static final int BUFFER_SIZE = 1024;
     private AudioFormat audioF;
     private SourceDataLine dataLine;
@@ -72,6 +72,12 @@ public class SoundPrinter {
                 inBuffer = new byte[BUFFER_SIZE];
             }
         }
+    }
+    
+    public void put(double sample) {
+        double[] buf = new double[1];
+        buf[0] = sample;
+        put(buf,1);
     }
     
     // Puts whatever is in the buffer into output queue

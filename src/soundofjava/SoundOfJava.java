@@ -16,32 +16,21 @@ public class SoundOfJava {
      */
     public static void main(String[] args) {
         SoundPrinter soundPrinter = new SoundPrinter();
-        
         float rate = 44100;
-        int vol = 100;
         double Hertz = 440;
-        //double realHertz;
-        double[] sample = new double[1];
         
-        // Sample
-        for(int i=0; i<rate*5; i++){
-            if (i%rate<rate/2) {
-                Hertz +=.01;
-            } else {
-                Hertz -=.01;
-            }
-            //realHertz = 0.5*Hertz;
-            double angle = ((i%rate)/rate)*Hertz*2.0*Math.PI;
-            //double angle = (i/rate)*Hertz*x*i*Math.PI;
-
-            //double angle2 = 0.5*(i/rate)*2.0*Math.PI;
-
-            sample[0]=(Math.sin(angle)*vol);
-            soundPrinter.put(sample, 1);
-            if (i==2000) soundPrinter.play();
+        Oscillator sineOscillator = new Oscillator(Hertz);
+        Oscillator freqOscillator = new Oscillator(5,10);
+        
+        for (int i = 0; i<rate*5; i++) {
+            sineOscillator.setFrequency(Hertz+freqOscillator.generate());
+            soundPrinter.put(sineOscillator.generate());
         }
+        
         soundPrinter.putEnd();
-        //soundPrinter.play();
+        soundPrinter.play();
+
+        // To prove the multithreading works!
         System.out.println("Does the multithreading work?");
         try {
             Thread.sleep(1000);
@@ -55,7 +44,7 @@ public class SoundOfJava {
             System.out.println(e);
         }
         System.out.println("STOP");
-        //soundPrinter.stop();
+        soundPrinter.stop();
     }
     
 }
