@@ -128,9 +128,12 @@ public class SoundPrinter {
             // While there is more to read and stopFlag is false
             while (!sPrinter.isStopped() && queue.peek() != null) {
                 outBuff = queue.remove();
+                
                 for (int opos = 0; opos<BUFFER_SIZE && !sPrinter.isStopped(); opos++) {
                     sourceDataLine.write(outBuff, opos, 1);
                 }
+                
+                //sourceDataLine.write(outBuff, 0, BUFFER_SIZE);
             }
             sourceDataLine.drain();
             sourceDataLine.stop();

@@ -17,13 +17,20 @@ public class SoundOfJava {
     public static void main(String[] args) {
         SoundPrinter soundPrinter = new SoundPrinter();
         float rate = 44100;
-        double Hertz = 440;
+        double Hertz = 140;
         
-        Oscillator sineOscillator = new Oscillator(Hertz);
-        Oscillator freqOscillator = new Oscillator(5,10);
+        Oscillator sineOscillator = new Oscillator(Hertz,50);
+        Oscillator freqOscillator = new Oscillator(7,7.5);
+        Oscillator ampOscillator = new Oscillator (3,20);
+        freqOscillator.connectTo(sineOscillator,
+                freqOscillator.getOutputPort(),
+                sineOscillator.getFrequencyPort());
+        ampOscillator.connectTo(sineOscillator,
+                ampOscillator.getOutputPort(),
+                sineOscillator.getAmplitudePort());
         
         for (int i = 0; i<rate*5; i++) {
-            sineOscillator.setFrequency(Hertz+freqOscillator.generate());
+            //sineOscillator.setFrequency(Hertz+freqOscillator.generate());
             soundPrinter.put(sineOscillator.generate());
         }
         
