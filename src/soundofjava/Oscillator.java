@@ -11,7 +11,7 @@ package soundofjava;
  */
 public class Oscillator extends Component {
     private double rate;
-    private double phase;
+    protected double phase;
     private double frequency;
     private double amplitude;
     private int freqPort;
@@ -62,7 +62,7 @@ public class Oscillator extends Component {
         
         double samp = realAmp*waveFunction();
         phase += realFreq/rate;
-        if (phase<=1) phase--;
+        if (phase>=1) phase--;
         return samp;
     }
     
