@@ -5,6 +5,8 @@
  */
 package soundofjava;
 
+import java.util.ArrayList;
+
 /**
  *
  * @author Jonathon Zeitler
@@ -19,14 +21,21 @@ public class Oscillator extends Component {
     private int outPort;
 
     public Oscillator(double frq, double amp, double rte) {
+        inputs = new ArrayList<>();
+        outputs = new ArrayList<>();
+        inputSamples = new ArrayList<>();
+        outputSamples = new ArrayList<>();
+        inputPorts = new ArrayList<>();
+        outputPorts = new ArrayList<>();
+        
         frequency = frq;
         amplitude = amp;
         rate = rte;
         phase = 0.0;
         
-        freqPort = AddInputPort("Frequency");
-        ampPort = AddInputPort("Amplitude");
-        outPort = AddOutputPort("Primary");
+        freqPort = addInputPort("Frequency");
+        ampPort = addInputPort("Amplitude");
+        outPort = addOutputPort("Primary");
     }
     
     public Oscillator(double frq, double amp) {
@@ -39,8 +48,10 @@ public class Oscillator extends Component {
     
     public void setFrequency(double frq) { frequency = frq; }
     public void setAmplitude(double amp) { amplitude = amp; }
+    public void setPhase(double p) { phase = wrapPhase(p); }
     public double getFrequency() { return frequency; }
     public double getAmplitude() { return amplitude; }
+    public double getPhase() { return phase; }
     public int getFrequencyPort() { return freqPort; }
     public int getAmplitudePort() { return ampPort; }
     public int getOutputPort() { return outPort; }
@@ -62,7 +73,7 @@ public class Oscillator extends Component {
         
         double samp = realAmp*waveFunction();
         phase += realFreq/rate;
-        if (phase>=1) phase--;
+        phase = wrapPhase(phase);
         return samp;
     }
     
@@ -74,5 +85,11 @@ public class Oscillator extends Component {
     
     protected double waveFunction() {
         return Math.sin(phase*2.0*Math.PI);
+    }
+    
+    private double wrapPhase(double p) {
+        if (p<0) { p = 1.0 - Math.floor(-1*p); }
+        if (p>=1) { p -= Math.floor(p); }
+        return p;
     }
 }

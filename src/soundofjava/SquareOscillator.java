@@ -16,6 +16,7 @@ public class SquareOscillator extends Oscillator{
     
     SquareOscillator(double freq, double amp)  {
         super(freq, amp);
+        System.out.println(outputPorts);
     }
     
     @Override

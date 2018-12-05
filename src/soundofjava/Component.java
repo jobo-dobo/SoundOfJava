@@ -31,12 +31,12 @@ abstract class Component implements Chainable {
     }
     
     Component() {
-        inputs = new ArrayList();
-        outputs = new ArrayList();
-        inputSamples = new ArrayList();
-        outputSamples = new ArrayList();
-        inputPorts = new ArrayList();
-        outputPorts = new ArrayList();
+        inputs = new ArrayList<>();
+        outputs = new ArrayList<>();
+        inputSamples = new ArrayList<>();
+        outputSamples = new ArrayList<>();
+        inputPorts = new ArrayList<>();
+        outputPorts = new ArrayList<>();
         
         generateActive = true;
         
@@ -48,14 +48,14 @@ abstract class Component implements Chainable {
         outputPorts.add(0,"Primary");
     }
     
-    protected final int AddInputPort(String portName) {
+    protected final int addInputPort(String portName) {
         inputs.add(null);
         inputSamples.add(0.0);
         inputPorts.add(portName);
         return inputPorts.size()-1;
     }
     
-    protected final int AddOutputPort(String portName) {
+    protected final int addOutputPort(String portName) {
         outputs.add(null);
         outputSamples.add(0.0);
         outputPorts.add(portName);

@@ -92,8 +92,9 @@ public class SoundPrinter {
     
     public void play() {
         // Return if already playing
-        if (stopFlag = false || outThread != null && !outThread.isAlive()) return;
+        if (stopFlag == false || outThread != null && outThread.isAlive()) return;
         // Otherwise create writer and kick off thread
+        stopFlag = false;
         outThread = new Thread(new Writer(sharedQueue,dataLine, this));
         outThread.start();
     }
@@ -111,9 +112,9 @@ public class SoundPrinter {
     }
     
     private class Writer implements Runnable {
-        private LinkedBlockingQueue<byte[]> queue;
-        private SourceDataLine sourceDataLine;
-        private SoundPrinter sPrinter;
+        private final LinkedBlockingQueue<byte[]> queue;
+        private final SourceDataLine sourceDataLine;
+        private final SoundPrinter sPrinter;
         private byte[] outBuff;
         
         public Writer(LinkedBlockingQueue<byte[]> lbq, SourceDataLine sdl, SoundPrinter sp) {
