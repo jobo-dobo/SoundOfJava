@@ -22,6 +22,8 @@ public class SoundPrinter {
     private AudioFormat audioF;
     private SourceDataLine dataLine;
     private float sampleRate;
+    private int sampleBytes;
+    private final int MAX_VALUE;
     private byte[] inBuffer;
     private int inPos;
     private byte[] outBuffer;
@@ -32,12 +34,18 @@ public class SoundPrinter {
     
     
     public SoundPrinter() {
-        this(DEFAULT_RATE);
+        this(DEFAULT_RATE,16);
     }
     
-    public SoundPrinter(float rate) {
+    public SoundPrinter(float rate, int bits) {
+        if (bits<=8) {
+            sampleBytes = 1;
+        } else {
+            sampleBytes = 2;
+        }
+        MAX_VALUE = (int)Math.pow(2, sampleBytes*8 - 1) - 1;
         sampleRate = rate;
-        audioF = new AudioFormat(rate,8,1,true,false);
+        audioF = new AudioFormat(rate,sampleBytes*8,1,true,false);
         try {
             dataLine = AudioSystem.getSourceDataLine(audioF);
             dataLine.open(audioF);
@@ -45,7 +53,7 @@ public class SoundPrinter {
             System.out.println(lue);
         }
         buffOverride = false;
-        sharedQueue = new LinkedBlockingQueue<byte[]>();
+        sharedQueue = new LinkedBlockingQueue<>();
         inBuffer = new byte[BUFFER_SIZE];
         inPos = 0;
         stopFlag = true;
@@ -53,15 +61,21 @@ public class SoundPrinter {
     
     public void put(double[] samples, int len)
     {
+        int length = len * sampleBytes;
         int putPos = 0;
         int toCopy;
-        byte[] bSamples = new byte[len];
-        for (int i=0; i<len; i++) bSamples[i] = (byte)samples[i];
-        while (putPos<len) {
-            if (inPos + len - putPos > BUFFER_SIZE) {
+        byte[] bSamples = new byte[length];
+        for (int i=0; i<len; i++) {
+                System.arraycopy(
+                        sampleConvert(samples[i]),0,
+                        bSamples,i*2,sampleBytes
+                );
+        }
+        while (putPos<length) {
+            if (inPos + length - putPos > BUFFER_SIZE) {
                 toCopy = BUFFER_SIZE - inPos;
             } else {
-                toCopy = len - putPos;
+                toCopy = length - putPos;
             }
             System.arraycopy(bSamples,putPos,inBuffer,inPos,toCopy);
             inPos = (inPos+toCopy)%BUFFER_SIZE;
@@ -130,16 +144,26 @@ public class SoundPrinter {
             while (!sPrinter.isStopped() && queue.peek() != null) {
                 outBuff = queue.remove();
                 
-                for (int opos = 0; opos<BUFFER_SIZE && !sPrinter.isStopped(); opos++) {
-                    sourceDataLine.write(outBuff, opos, 1);
+                for (int opos = 0; opos<BUFFER_SIZE && !sPrinter.isStopped();
+                        opos+=sampleBytes) {
+                    sourceDataLine.write(outBuff, opos, sampleBytes);
                 }
-                
-                //sourceDataLine.write(outBuff, 0, BUFFER_SIZE);
             }
             sourceDataLine.drain();
             sourceDataLine.stop();
             sPrinter.stop();
         }
+    }
+    
+    private byte[] sampleConvert(double sample) {
+        byte[] result = new byte[sampleBytes];
+        int value = (int)Math.round((double)MAX_VALUE*(sample));
+        for (int i=0; i<sampleBytes; i++) {
+            result[i] = (byte)(value & 0xFF);
+            value = value >> 8;
+        }
+         
+        return result;
     }
 }
 

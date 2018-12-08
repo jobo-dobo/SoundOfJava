@@ -36,10 +36,6 @@ public class Mixer extends Component {
         }
         soundPrinter = new SoundPrinter();
         isPlaying = false;
-        System.out.println(inputs.size());
-        System.out.println(inputSamples.size());
-        System.out.println(inputPorts.size());
-        System.out.println(channelOptions.size());
     }
     
     public boolean isPlaying() { return isPlaying; }
@@ -58,7 +54,7 @@ public class Mixer extends Component {
         double volume;
         boolean mute;
         boolean solo;
-        ChannelOption(int v) {
+        ChannelOption(double v) {
             volume = v;
             mute = false;
             solo = false;
@@ -94,12 +90,23 @@ public class Mixer extends Component {
         for (i=0; i<inputs.size(); i++) {
             ChainPort cp = inputs.get(i);
             if (cp != null) {
-                inputSamples.set(i, cp.chainable.generate(cp.port));
+                double currsample = (channelOptions.get(i).volume/100)
+                                * cp.chainable.generate(cp.port);
+                if (currsample < -1.0) { currsample = -1.0; }
+                if (currsample > 1.0) { currsample = 1.0; }
+                inputSamples.set(i,currsample);
             } else {
                 inputSamples.set(i, 0.0);
             }
             if (!channelOptions.get(i).mute) {
-                samp += inputSamples.get(i);
+                double nextsamp = inputSamples.get(i);
+                if (nextsamp<0 && samp<0) {
+                    samp = (samp+nextsamp)+(samp*nextsamp);
+                } else if (nextsamp>0 && samp>0) {
+                    samp = (samp+nextsamp)-(samp*nextsamp);
+                } else {
+                    samp = samp+nextsamp;
+                }
             }
         }
         
@@ -118,7 +125,7 @@ public class Mixer extends Component {
     public void play() {
         // Return if already playing
         if (isPlaying == true || outThread != null && outThread.isAlive()) return;
-        System.out.println("made it here");
+
         // Otherwise create writer and kick off thread
         isPlaying  = true;
         outThread = new Thread(new MixGenerator(this, soundPrinter));
@@ -149,12 +156,9 @@ public class Mixer extends Component {
         
         @Override
         public void run() {
-            System.out.println("running play thread");
             for (int i = 0; i < 2048 && mixer.isPlaying(); i++) {
-                System.out.println(i);
                 mixer.generate();
             }
-            System.out.println("playing?");
             if (mixer.isPlaying()) { sPrinter.play(); }
             while (mixer.isPlaying()) { mixer.generate(); }
         }

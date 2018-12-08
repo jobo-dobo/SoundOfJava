@@ -31,9 +31,9 @@ public class SoundOfJava {
         Oscillator sineOscillator2 = new Oscillator(150,10);
         SquareOscillator sineOscillator3 = new SquareOscillator(330,10);
         SquareOscillator sineOscillator4 = new SquareOscillator(223,10);
-        SquareOscillator sineOscillator5 = new SquareOscillator(Hertz,10);
-        SquareOscillator sineOscillator6 = new SquareOscillator(Hertz2,10);
-        SquareOscillator sineOscillator7 = new SquareOscillator(Hertz3,10);
+        Oscillator sineOscillator5 = new Oscillator(Hertz,100);
+        Oscillator sineOscillator6 = new Oscillator(Hertz2,100);
+        Oscillator sineOscillator7 = new Oscillator(Hertz3,100);
         /*Oscillator freqOscillator = new Oscillator(5,5);
         Oscillator ampOscillator = new Oscillator (3,5);
         freqOscillator.connectTo(sineOscillator,

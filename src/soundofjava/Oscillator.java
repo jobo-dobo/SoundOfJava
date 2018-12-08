@@ -29,7 +29,7 @@ public class Oscillator extends Component {
         outputPorts = new ArrayList<>();
         
         frequency = frq;
-        amplitude = amp;
+        amplitude = amp/100;
         rate = rte;
         phase = 0.0;
         
@@ -47,10 +47,10 @@ public class Oscillator extends Component {
     }
     
     public void setFrequency(double frq) { frequency = frq; }
-    public void setAmplitude(double amp) { amplitude = amp; }
+    public void setAmplitude(double amp) { amplitude = amp/100; }
     public void setPhase(double p) { phase = wrapPhase(p); }
     public double getFrequency() { return frequency; }
-    public double getAmplitude() { return amplitude; }
+    public double getAmplitude() { return amplitude*100; }
     public double getPhase() { return phase; }
     public int getFrequencyPort() { return freqPort; }
     public int getAmplitudePort() { return ampPort; }
