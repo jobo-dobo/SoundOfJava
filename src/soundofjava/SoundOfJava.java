@@ -27,13 +27,15 @@ public class SoundOfJava {
         double Hertz2 = 873.0705;
         double Hertz3 = 1100;
         
+        OscillatorFactory of = new OscillatorFactory();
+        
         SquareOscillator sineOscillator = new SquareOscillator(Hertz,10);
         Oscillator sineOscillator2 = new Oscillator(150,10);
         SquareOscillator sineOscillator3 = new SquareOscillator(330,10);
         SquareOscillator sineOscillator4 = new SquareOscillator(223,10);
-        Oscillator sineOscillator5 = new Oscillator(Hertz,100);
-        Oscillator sineOscillator6 = new Oscillator(Hertz2,100);
-        Oscillator sineOscillator7 = new Oscillator(Hertz3,100);
+        Oscillator sineOscillator5 = of.getOscillator("TRIANGLE",Hertz,80);
+        Oscillator sineOscillator6 = of.getOscillator("SAWTOOTH",Hertz2,0);
+        Oscillator sineOscillator7 = of.getOscillator("SQUARE",Hertz3,0);
         /*Oscillator freqOscillator = new Oscillator(5,5);
         Oscillator ampOscillator = new Oscillator (3,5);
         freqOscillator.connectTo(sineOscillator,
@@ -76,6 +78,13 @@ public class SoundOfJava {
             sineOscillator6.setFrequency(Hertz2);
             sineOscillator7.setFrequency(Hertz3);
             mixer.generate();
+            if (i==rate*5) {
+                sineOscillator5.setAmplitude(0);
+                sineOscillator6.setAmplitude(80);
+            } else if (i==rate*10) {
+                sineOscillator6.setAmplitude(0);
+                sineOscillator7.setAmplitude(80);
+            }
             
             //if (i>0 && i==next) {
             //    sineOscillator.setFrequency(Hertz+(Math.random()-0.5)*600);
