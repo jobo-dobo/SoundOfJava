@@ -19,8 +19,11 @@ public class Oscillator extends Component {
     private int freqPort;
     private int ampPort;
     private int outPort;
+    protected double[] waveCache;
+    protected int cacheLength;
+    private boolean cacheEnabled;
 
-    public Oscillator(double frq, double amp, double rte) {
+    public Oscillator(double frq, double amp, double rte, boolean cacheOn) {
         inputs = new ArrayList<>();
         outputs = new ArrayList<>();
         inputSamples = new ArrayList<>();
@@ -36,14 +39,20 @@ public class Oscillator extends Component {
         freqPort = addInputPort("Frequency");
         ampPort = addInputPort("Amplitude");
         outPort = addOutputPort("Primary");
+        
+        cacheEnabled = cacheOn;
+        cacheLength = 10000;
+        if (cacheEnabled) {
+            waveCache = null;
+        }
     }
     
     public Oscillator(double frq, double amp) {
-        this(frq,amp,SoundPrinter.DEFAULT_RATE);
+        this(frq,amp,SoundPrinter.DEFAULT_RATE,true);
     }
     
     public Oscillator(double frq) {
-        this(frq,100,SoundPrinter.DEFAULT_RATE);
+        this(frq,100,SoundPrinter.DEFAULT_RATE,true);
     }
     
     public void setFrequency(double frq) { frequency = frq; }
@@ -63,6 +72,14 @@ public class Oscillator extends Component {
         double realFreq = frequency;
         double realAmp = amplitude;
         
+        double samp;
+        if (cacheEnabled) {
+            if (waveCache == null) { fillCache(); }
+            samp = realAmp*cacheFetch(phase);
+        } else {
+            samp = realAmp*waveFunction();
+        }
+        
         if (inputs.get(freqPort) != null) {
             realFreq += generateInput(freqPort);
         }
@@ -71,7 +88,6 @@ public class Oscillator extends Component {
             realAmp += generateInput(ampPort);
         }
         
-        double samp = realAmp*waveFunction();
         phase += realFreq/rate;
         phase = wrapPhase(phase);
         return samp;
@@ -83,8 +99,37 @@ public class Oscillator extends Component {
         return generate();
     }
     
+    public void setCacheSize(int len) {
+        cacheLength = len;
+        waveCache = new double[cacheLength];
+        fillCache();
+    }
+    
+    public void enableCache() { cacheEnabled = true; }
+    public void disableCache() { cacheEnabled = false; }
+    
+    private void fillCache() {
+        if (cacheEnabled) {
+            for (int i=0; i<cacheLength; i++) {
+                waveCache[i] = waveFunction();
+                phase += (1.0/(double)cacheLength);
+            }
+            phase = 0.0;
+        }
+    }
+    
     protected double waveFunction() {
         return Math.sin(phase*2.0*Math.PI);
+    }
+    
+    protected double cacheFetch(double pos) {
+        double realPos = pos*(double)cacheLength;
+        int index1 = (int)Math.floor(realPos);
+        int index2 = index1 + 1;
+        if (index2 >= cacheLength) { index2 = 0; }
+        realPos -= (double)index1;
+        return (1.0 - realPos)*waveCache[index1] + 
+                realPos*waveCache[index2];
     }
     
     private double wrapPhase(double p) {

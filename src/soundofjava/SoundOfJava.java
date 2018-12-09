@@ -43,7 +43,7 @@ public class SoundOfJava {
                 sineOscillator.getFrequencyPort());
         ampOscillator.connectTo(sineOscillator,
                 ampOscillator.getOutputPort(),
-                sineOscillator.getAmplitudePort());*/
+                sineOscillator.getAmplitudePort());*/ 
         
         int next = (int)(Math.random()*40000);
         

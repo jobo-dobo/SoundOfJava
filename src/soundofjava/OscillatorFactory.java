@@ -23,10 +23,13 @@ public class OscillatorFactory {
         switch (type) {
             case "SQUARE" :
                 return new Oscillator(freq, amp) {
+                    {
+                        setCacheSize(10000);
+                    }
                     @Override
                     protected double waveFunction() {
                         double samp = 0.0;
-                        for (int i=1; i<=31; i+=2) {
+                        for (int i=1; i<=41; i+=2) {
                             samp += 
                                   Math.sin((double)i*phase*2.0*Math.PI)
                                   /(double)i;
@@ -44,6 +47,9 @@ public class OscillatorFactory {
                 
             case "TRIANGLE" :
                 return new Oscillator(freq,amp) {
+                    {
+                        setCacheSize(4);
+                    }
                     @Override
                     protected double waveFunction() {
                         if (phase <= 0.25) {
@@ -58,10 +64,13 @@ public class OscillatorFactory {
                 
             case "SAWTOOTH" :
                 return new Oscillator(freq,amp) {
+                    {
+                        setCacheSize(10000);
+                    }
                     @Override
                     protected double waveFunction() {
                         double samp = 0.5;
-                        for (int i=1; i<=31; i++) {
+                        for (int i=1; i<=41; i++) {
                             double sign;
                             if (i%2 == 0) { sign = 1.0; } else { sign = -1.0; }
                             samp -= 
@@ -82,6 +91,9 @@ public class OscillatorFactory {
             case "SINE" :
             default :
                 return new Oscillator(freq, amp) {
+                    {
+                        setCacheSize(10000);
+                    }
                     @Override
                     protected double waveFunction() {
                         return Math.sin(phase*2.0*Math.PI);
