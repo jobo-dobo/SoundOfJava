@@ -32,10 +32,63 @@ public class Mixer extends Component {
         
         for(int i=0;i<numChannels;i++) {
             addInputPort("Channel"+String.valueOf(i+1));
-            channelOptions.add(new ChannelOption(50));
+            channelOptions.add(new ChannelOption(0.5));
         }
         soundPrinter = new SoundPrinter();
         isPlaying = false;
+    }
+    
+    public double getVolume(int c) {
+        if (c>=0 && c<inputs.size()) {
+            return channelOptions.get(c).volume;
+        } else {
+            return 0.0;
+        }
+    }
+    
+    public boolean getMute(int c) {
+        if (c>=0 && c<inputs.size()) {
+            return channelOptions.get(c).mute;
+        } else {
+            return false;
+        }
+    }
+    
+    public boolean getSolo(int c) {
+        if (c>=0 && c<inputs.size()) {
+            return channelOptions.get(c).solo;
+        } else {
+            return false;
+        }
+    }
+    
+    public void setVolume(int c, double v) {
+        if (c>=0 && c<inputs.size()) {
+            if (v<0) { v=0; }
+            channelOptions.get(c).volume = v;
+        }
+    }
+    
+    public void mute(int c) {
+        if (c>=0 && c<inputs.size()) {
+            channelOptions.get(c).mute = true;
+        }
+    }
+    
+    public void unmute(int c) {
+        if (c>=0 && c<inputs.size()) {
+            channelOptions.get(c).mute = true;
+        }
+    }
+    
+    public void toggleSolo(int c) {
+        for (int i=0; i<inputs.size(); i++) {
+            if (i==c) {
+                channelOptions.get(i).solo = !channelOptions.get(i).solo;
+            } else {
+                channelOptions.get(i).solo = false;
+            }
+        }
     }
     
     public boolean isPlaying() { return isPlaying; }
@@ -46,7 +99,7 @@ public class Mixer extends Component {
         int currLen = inputs.size();
         for(int i=currLen;i<currLen + numChannels;i++) {
             addInputPort("Channel"+String.valueOf(i+1));
-            channelOptions.add(new ChannelOption(50));
+            channelOptions.add(new ChannelOption(0.5));
         }
     }
     
@@ -82,7 +135,7 @@ public class Mixer extends Component {
         boolean solo = false;
         int i;
         
-        for (i = 0; i<inputs.size(); i++) {
+        for (i = 0; !solo && i<inputs.size(); i++) {
             solo = solo || channelOptions.get(i).solo;
         }
         int soloIndex = i-1;
@@ -90,7 +143,7 @@ public class Mixer extends Component {
         for (i=0; i<inputs.size(); i++) {
             ChainPort cp = inputs.get(i);
             if (cp != null) {
-                double currsample = (channelOptions.get(i).volume/100)
+                double currsample = getVolume(i)
                                 * cp.chainable.generate(cp.port);
                 if (currsample < -1.0) { currsample = -1.0; }
                 if (currsample > 1.0) { currsample = 1.0; }

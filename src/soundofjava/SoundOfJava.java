@@ -33,17 +33,21 @@ public class SoundOfJava {
         Oscillator sineOscillator2 = new Oscillator(150,10);
         SquareOscillator sineOscillator3 = new SquareOscillator(330,10);
         SquareOscillator sineOscillator4 = new SquareOscillator(223,10);
-        Oscillator sineOscillator5 = of.getOscillator("TRIANGLE",Hertz/2,80);
-        Oscillator sineOscillator6 = of.getOscillator("SAWTOOTH",Hertz2/2,0);
-        Oscillator sineOscillator7 = of.getOscillator("SQUARE",Hertz3/2,0);
-        /*Oscillator freqOscillator = new Oscillator(5,5);
-        Oscillator ampOscillator = new Oscillator (3,5);
-        freqOscillator.connectTo(sineOscillator,
-                freqOscillator.getOutputPort(),
-                sineOscillator.getFrequencyPort());
-        ampOscillator.connectTo(sineOscillator,
-                ampOscillator.getOutputPort(),
-                sineOscillator.getAmplitudePort());*/ 
+        Oscillator sineOscillator5 = of.getOscillator("SAWTOOTH",Hertz/2,0.5);
+        Oscillator sineOscillator6 = of.getOscillator("TRIANGLE",Hertz2/2,0.8);
+        Oscillator sineOscillator7 = of.getOscillator("SINE",Hertz3/2,0.8);
+        Oscillator fmOscillator = new Oscillator(5,5);
+        Oscillator fmOscillator2 = new Oscillator(7,7);
+        Oscillator amOscillator = new Oscillator (3,0.05);
+        fmOscillator2.connectTo(sineOscillator5,
+                fmOscillator2.getOutputPort(),
+                sineOscillator5.getFMPort());
+        fmOscillator.connectTo(sineOscillator7,
+                fmOscillator.getOutputPort(),
+                sineOscillator7.getFMPort());
+        amOscillator.connectTo(sineOscillator6,
+                amOscillator.getOutputPort(),
+                sineOscillator6.getAMPort());
         
         int next = (int)(Math.random()*40000);
         
@@ -60,6 +64,7 @@ public class SoundOfJava {
         mixer.add(sineOscillator5);
         mixer.add(sineOscillator6);
         mixer.add(sineOscillator7);
+        mixer.toggleSolo(0);
         
         for (int i = 0; i<rate*15; i++) {
             //sineOscillator.setFrequency(Hertz+freqOscillator.generate());
@@ -79,11 +84,9 @@ public class SoundOfJava {
             //sineOscillator7.setFrequency(Hertz3);
             mixer.generate();
             if (i==rate*5) {
-                sineOscillator5.setAmplitude(0);
-                sineOscillator6.setAmplitude(80);
+                mixer.toggleSolo(1);
             } else if (i==rate*10) {
-                sineOscillator6.setAmplitude(0);
-                sineOscillator7.setAmplitude(80);
+                mixer.toggleSolo(2);
             }
             
             //if (i>0 && i==next) {

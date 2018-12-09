@@ -18,6 +18,8 @@ public class Oscillator extends Component {
     private double amplitude;
     private int freqPort;
     private int ampPort;
+    private int fmPort;
+    private int amPort;
     private int outPort;
     protected double[] waveCache;
     protected int cacheLength;
@@ -32,12 +34,15 @@ public class Oscillator extends Component {
         outputPorts = new ArrayList<>();
         
         frequency = frq;
-        amplitude = amp/100;
+        amplitude = amp;
         rate = rte;
         phase = 0.0;
         
         freqPort = addInputPort("Frequency");
         ampPort = addInputPort("Amplitude");
+        fmPort = addInputPort("Frequency Modulator");
+        amPort = addInputPort("Amplitude Modulator");
+        
         outPort = addOutputPort("Primary");
         
         cacheEnabled = cacheOn;
@@ -52,25 +57,45 @@ public class Oscillator extends Component {
     }
     
     public Oscillator(double frq) {
-        this(frq,100,SoundPrinter.DEFAULT_RATE,true);
+        this(frq,1,SoundPrinter.DEFAULT_RATE,true);
     }
     
     public void setFrequency(double frq) { frequency = frq; }
-    public void setAmplitude(double amp) { amplitude = amp/100; }
+    public void setAmplitude(double amp) { amplitude = amp; }
     public void setPhase(double p) { phase = wrapPhase(p); }
     public double getFrequency() { return frequency; }
-    public double getAmplitude() { return amplitude*100; }
+    public double getAmplitude() { return amplitude; }
     public double getPhase() { return phase; }
     public int getFrequencyPort() { return freqPort; }
     public int getAmplitudePort() { return ampPort; }
+    public int getFMPort() { return fmPort; }
+    public int getAMPort() { return amPort; }
     public int getOutputPort() { return outPort; }
     
     @Override
     public double generate() {
         if (!generateActive) { return 0.0; }
         
+        if (inputs.get(freqPort) != null) {
+            frequency = generateInput(freqPort);
+        }
+        
+        if (inputs.get(ampPort) != null) {
+            amplitude = generateInput(ampPort);
+        }
+        
         double realFreq = frequency;
         double realAmp = amplitude;
+        
+        if (inputs.get(fmPort) != null) {
+            realFreq += generateInput(fmPort);
+        }
+        
+        if (inputs.get(amPort) != null) {
+            realAmp += generateInput(amPort);
+        }
+        
+        if (realAmp < 0) { realAmp = 0.0; }
         
         double samp;
         if (cacheEnabled) {
@@ -78,14 +103,6 @@ public class Oscillator extends Component {
             samp = realAmp*cacheFetch(phase);
         } else {
             samp = realAmp*waveFunction();
-        }
-        
-        if (inputs.get(freqPort) != null) {
-            realFreq += generateInput(freqPort);
-        }
-        
-        if (inputs.get(ampPort) != null) {
-            realAmp += generateInput(ampPort);
         }
         
         phase += realFreq/rate;
@@ -109,6 +126,9 @@ public class Oscillator extends Component {
     public void disableCache() { cacheEnabled = false; }
     
     private void fillCache() {
+        if (waveCache == null) {
+            waveCache = new double[cacheLength];
+        }
         if (cacheEnabled) {
             for (int i=0; i<cacheLength; i++) {
                 waveCache[i] = waveFunction();
