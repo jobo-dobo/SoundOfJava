@@ -25,22 +25,18 @@ public class OscillatorFactory {
                 return new Oscillator(freq, amp) {
                     @Override
                     protected double waveFunction() {
-                        if (phase < 0.5) {
-                            return 1.0;
-                        } else {
-                            return -1.0;
+                        double samp = 0.0;
+                        for (int i=1; i<=31; i+=2) {
+                            samp += 
+                                  Math.sin((double)i*phase*2.0*Math.PI)
+                                  /(double)i;
                         }
+                        return samp;
                         
-                        /*if (phase < 0.05) {
-                            return 20*phase;
-                        } else if (phase < 0.45) {
+                        /*if (phase < 0.5) {
                             return 1.0;
-                        } else if (phase < 0.55) {
-                            return 20*(phase-0.45) - 1.0;
-                        } else if (phase < 0.95) {
-                            return -1.0;
                         } else {
-                            return 20*(1.0-phase);
+                            return -1.0;
                         }*/
                     }
                     
@@ -64,18 +60,20 @@ public class OscillatorFactory {
                 return new Oscillator(freq,amp) {
                     @Override
                     protected double waveFunction() {
-                        if (phase <= 0.5) {
+                        double samp = 0.5;
+                        for (int i=1; i<=31; i++) {
+                            double sign;
+                            if (i%2 == 0) { sign = 1.0; } else { sign = -1.0; }
+                            samp -= 
+                                  sign*Math.sin((double)i*phase*2.0*Math.PI)
+                                  /(double)i;
+                        }
+                        return samp;
+                        
+                        /*if (phase <= 0.5) {
                             return phase*2;
                         } else {
                             return phase*2 - 2.0;
-                        }
-                        
-                        /*if (phase < 0.45) {
-                            return phase*1.8;
-                        } else if (phase < 0.55) {
-                            return (phase-0.45)*-200 + 1.0;
-                        } else {
-                            return phase*1.8 - 1.8;
                         }*/
                     }
                     
