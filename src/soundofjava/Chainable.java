@@ -43,8 +43,15 @@ public interface Chainable {
     void stop();
 
     /**
-     * Specifies to connect an output port from this Chainable to an input of 
-     * another Chainable
+     * Indicates whether this Component is actively generating
+     * 
+     * @return true if actively generating
+     */
+    boolean isGenerating();
+    
+    /**
+     * Connects an output port from this Chainable to an input of another
+     * Chainable
      * 
      * @param dest       the Chainable to connect an output to
      * @param sourcePort the output port to connect
@@ -54,8 +61,18 @@ public interface Chainable {
     boolean connectTo(Chainable dest, int sourcePort, int destPort);
 
     /**
-     * Specifies to connect output to another Chainable's input according to
-     * default behavior
+     * Connects default output from this Chainable to an input of another
+     * Chainable
+     * 
+     * @param dest       the Chainable to connect an output to
+     * @param destPort   the input port to connect to
+     * @return           true if successful
+     */
+    public boolean connectTo(Chainable dest, int destPort);
+    
+    /**
+     * Connects output to another Chainable's input according to default
+     * behavior
      * 
      * @param dest  the Chainable to connect output to
      * @return      true if successful
@@ -63,11 +80,11 @@ public interface Chainable {
     boolean connectTo(Chainable dest);
     
     /**
-     * Specifies to take an output port from another Chainable to an input of 
-     * this Chainable. Validation should occur in connectTo, so this should not
+     * Takes an output port from another Chainable to an input of this
+     * Chainable. Validation should occur in connectTo, so this should not
      * return false.
      * 
-     * @param source       the Chainable to connect an input from
+     * @param source     the Chainable to connect an input from
      * @param sourcePort the output port to connect
      * @param destPort   the input port to connect to
      * @return           true if successful
@@ -75,15 +92,15 @@ public interface Chainable {
     boolean accept(Chainable source, int sourcePort, int destPort);
     
     /**
-     * Clear the specified input.
+     * Clears the specified input
      * 
-     * @param destPort   the input port to connect to
+     * @param destPort   the input port to clear
      * @return           true if successful
      */
     boolean discard(int destPort);
 
     /**
-     * Remove any current connection to specified input port
+     * Removes any current connection to specified input port
      *
      * @param inputPort the input port to disconnect
      * @return          true if successful
@@ -91,14 +108,14 @@ public interface Chainable {
     public boolean disconnectInput(int inputPort);
 
     /**
-     * Disconnect input according to this Chainable's default behavior
+     * Disconnects input according to this Chainable's default behavior
      * 
      * @return  true if successful
      */
     boolean disconnectInput();
 
     /**
-     * Remove any current connection from specified output port
+     * Removes any current connection from specified output port
      * 
      * @param outputPort    the output port to disconnect
      * @return              true if successful
@@ -106,12 +123,12 @@ public interface Chainable {
     boolean disconnectOutput(int outputPort);
 
     /**
-     * Disconnect output according to default behavior
+     * Disconnects output according to default behavior
      */
     void disconnectOutput();
     
     /**
-     * Disconnect all of this Chainable's input ports
+     * Disconnects all of this Chainable's input ports
      */
     public default void disconnectAllInput() {
         for (int i = 0; i<getInputs().size(); i++) {
@@ -120,7 +137,7 @@ public interface Chainable {
     }
     
     /**
-     * Disconnect all of this Chainable's output ports
+     * Disconnects all of this Chainable's output ports
      */
     public default void disconnectAllOuput() {
         for (int i = 0; i<getOutputs().size(); i++) {
@@ -129,7 +146,7 @@ public interface Chainable {
     }
     
     /**
-     * Disconnect all of this Chainable's inputs and outputs
+     * Disconnects all of this Chainable's inputs and outputs
      */
     public default void disconnectAll() {
         disconnectAllInput();

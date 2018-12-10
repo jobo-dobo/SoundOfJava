@@ -17,10 +17,18 @@ public class Mixer extends Component {
     boolean isPlaying;
     private Thread outThread;
     
+    /**
+     * Default constructor, creates 8 channels
+     */
     Mixer() {
         this(8);
     }
     
+    /**
+     * Default constructor that takes number of channels to start with
+     * 
+     * @param numChannels   number of channels to create
+     */
     Mixer(int numChannels) {
         channelOptions = new ArrayList<>();
         inputs = new ArrayList<>();
@@ -38,6 +46,12 @@ public class Mixer extends Component {
         isPlaying = false;
     }
     
+    /**
+     * Get current volume of a channel
+     * 
+     * @param c channel number
+     * @return  volume of channel
+     */
     public double getVolume(int c) {
         if (c>=0 && c<inputs.size()) {
             return channelOptions.get(c).volume;
@@ -46,6 +60,12 @@ public class Mixer extends Component {
         }
     }
     
+    /**
+     * Get current mute state of a channel
+     * 
+     * @param c channel number
+     * @return  true if muted
+     */
     public boolean getMute(int c) {
         if (c>=0 && c<inputs.size()) {
             return channelOptions.get(c).mute;
@@ -54,6 +74,12 @@ public class Mixer extends Component {
         }
     }
     
+    /**
+     * Get solo state of a channel
+     * 
+     * @param c channel number
+     * @return  true if in solo state
+     */
     public boolean getSolo(int c) {
         if (c>=0 && c<inputs.size()) {
             return channelOptions.get(c).solo;
@@ -62,6 +88,12 @@ public class Mixer extends Component {
         }
     }
     
+    /**
+     * Set volume of a channel
+     * 
+     * @param c channel number
+     * @param v volume to set to (multiplicative scale; 0.0 to 1.0 recommended)
+     */
     public void setVolume(int c, double v) {
         if (c>=0 && c<inputs.size()) {
             if (v<0) { v=0; }
@@ -69,18 +101,34 @@ public class Mixer extends Component {
         }
     }
     
+    /**
+     * Mute a channel
+     * 
+     * @param c channel number to mute
+     */
     public void mute(int c) {
         if (c>=0 && c<inputs.size()) {
             channelOptions.get(c).mute = true;
         }
     }
     
+    /** 
+     * Unmute a channel
+     * 
+     * @param c channel number to unmute
+     */
     public void unmute(int c) {
         if (c>=0 && c<inputs.size()) {
             channelOptions.get(c).mute = true;
         }
     }
     
+    /**
+     * Toggle solo state for channel. Toggling solo for amy channel will set
+     * solo state to off on all other channels
+     * 
+     * @param c channel number
+     */
     public void toggleSolo(int c) {
         for (int i=0; i<inputs.size(); i++) {
             if (i==c) {
@@ -91,10 +139,21 @@ public class Mixer extends Component {
         }
     }
     
+    /**
+     * Returns whether Mixer is playing to audio output
+     * @return true if playing
+     */
     public boolean isPlaying() { return isPlaying; }
     
+    /**
+     * Adds one new channel to this Mixer
+     */
     public void addChannel() { addChannels(1); }
     
+    /**
+     * Adds specified number of channels to this Mixer
+     * @param numChannels   number of channels to add
+     */
     public void addChannels(int numChannels) {
         int currLen = inputs.size();
         for(int i=currLen;i<currLen + numChannels;i++) {
@@ -103,6 +162,9 @@ public class Mixer extends Component {
         }
     }
     
+    /**
+     * Simple data struct to store channel options
+     */
     private class ChannelOption {
         double volume;
         boolean mute;
@@ -114,10 +176,24 @@ public class Mixer extends Component {
         }
     }
     
+    /**
+     * Add a chainable to the mixer whose default output port is 0
+     * 
+     * @param c Chainable to add
+     * @return  channel Chainable has been connected to
+     */
     public int add(Chainable c) {
         return add(c,0);
     }
     
+    /**
+     * Add a Chainable's specified output port to the first available channel
+     * in this Mixer, or create a new channel and add to it if all are filled
+     * 
+     * @param c         Chainable to add
+     * @param outPort   output port to connect to a channel in this Mixer
+     * @return          channel number the Chainable has been connected to
+     */
     @SuppressWarnings("empty-statement")
     public int add(Chainable c, int outPort) {
         int inPort;
@@ -129,19 +205,30 @@ public class Mixer extends Component {
         return inPort;
     }
     
+    /**
+     * Generates a sample that mixes samples generated from all channels
+     * according to the current channel states, and adds it to an audio output
+     * queue
+     * 
+     * @return  generated sample value
+     */
     @Override
     public double generate() {
         double samp = 0.0;
         boolean solo = false;
         int i;
         
+        // check for a solo channel
         for (i = 0; !solo && i<inputs.size(); i++) {
             solo = solo || channelOptions.get(i).solo;
         }
         int soloIndex = i-1;
         
+        // iterate through channels
         for (i=0; i<inputs.size(); i++) {
             ChainPort cp = inputs.get(i);
+            
+            // generate sample for this channel at current volume and store
             if (cp != null) {
                 double currsample = getVolume(i)
                                 * cp.chainable.generate(cp.port);
@@ -151,6 +238,9 @@ public class Mixer extends Component {
             } else {
                 inputSamples.set(i, 0.0);
             }
+            
+            // mix in the channel sample to the final sample based on simple
+            // algorithm to avoid clipping and whether channel is muted
             if (!channelOptions.get(i).mute) {
                 double nextsamp = inputSamples.get(i);
                 if (nextsamp<0 && samp<0) {
@@ -163,25 +253,38 @@ public class Mixer extends Component {
             }
         }
         
+        // reassign to just solo channel's sample if a channel has solo on
         if (solo) { samp = inputSamples.get(soloIndex); }
         
+        // add to audio output queue
         soundPrinter.put(samp);
         
         return samp;
     }
     
+    /**
+     * Generates a sample that mixes samples generated from all channels
+     * according to the current channel states, and adds it to an audio output
+     * queue
+     * 
+     * @param i output channel, ignored for Mixer, which has no output
+     * @return  generated sample value
+     */
     @Override
     public double generate(int i) {
         return generate();
     }
 
+    /**
+     * Start playing generated and queued samples to audio output
+     */
     public void play() {
         // Return if already playing
         if (isPlaying == true || outThread != null && outThread.isAlive()) return;
 
         // Otherwise create writer and kick off thread
         isPlaying  = true;
-        outThread = new Thread(new MixGenerator(this, soundPrinter));
+        outThread = new Thread(new MixGenerator(this));
         outThread.start();
         
         /*for (int i = 0; i < 2048 && isPlaying; i++) {
@@ -190,7 +293,10 @@ public class Mixer extends Component {
         if (isPlaying) { soundPrinter.play(); }
         while (isPlaying) { generate(); }*/
     }
-        
+    
+    /**
+     * Stop playing to audio output
+     */
     @Override
     public void stop() {
         soundPrinter.putEnd();
@@ -198,13 +304,21 @@ public class Mixer extends Component {
         isPlaying = false;
     }
     
+    /**
+     * Nested class used for thread that writes to audio output
+     */
     private class MixGenerator implements Runnable  {
         Mixer mixer;
         SoundPrinter sPrinter;
         
-        MixGenerator(Mixer m, SoundPrinter sp) {
+        /**
+         * Constructor which takes the Mixer
+         * 
+         * @param m the Mixer writing to output
+         */
+        MixGenerator(Mixer m) {
             mixer = m;
-            sPrinter = sp;
+            sPrinter = m.soundPrinter;
         }
         
         @Override
