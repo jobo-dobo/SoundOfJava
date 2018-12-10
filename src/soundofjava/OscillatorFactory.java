@@ -6,26 +6,51 @@
 package soundofjava;
 
 /**
- *
+ * Factory class which creates Oscillators with different waveforms
+ * 
  * @author Jonathon Zeitler
  */
 public class OscillatorFactory {
+    /**
+     * Default constructor, no initialization currently
+     */
     OscillatorFactory() {
-        
     }
     
+    /**
+     * Returns an Oscillator with the given type of waveform (or sine if no
+     * match to type identifier string) and starting frequency, with default
+     * amplitude of 1.0
+     * 
+     * @param type  identifier string for type of waveform
+     * @param freq  starting frequency
+     * @return Oscillator fitting the providing specifications
+     */
     public Oscillator getOscillator(String type, double freq) {
-        return getOscillator(type, freq, 100.0);
+        return getOscillator(type, freq, 1.0);
     }
     
+    /**
+     * Returns an Oscillator with the given type of waveform (or sine if no
+     * match to type identifier string), starting frequency, and starting
+     * amplitude
+     * 
+     * @param type  identifier string for type of waveform
+     * @param freq  starting frequency
+     * @param amp   starting amplitude
+     * @return Oscillator fitting the providing specifications
+     */
     public Oscillator getOscillator(String type, double freq, double amp) {
         type = type.toUpperCase();
         switch (type) {
+            // Oscillator with square waveform
             case "SQUARE" :
                 return new Oscillator(freq, amp) {
+                    // anonymous class initialization
                     {
                         setCacheSize(10000);
                     }
+                    // square wave function
                     @Override
                     protected double waveFunction() {
                         double samp = 0.0;
@@ -44,12 +69,15 @@ public class OscillatorFactory {
                     }
                     
                 };
-                
+            
+            // Oscillator with triangle waveform
             case "TRIANGLE" :
                 return new Oscillator(freq,amp) {
+                    // anonymous class initialization
                     {
                         setCacheSize(4);
                     }
+                    // triangle wave function
                     @Override
                     protected double waveFunction() {
                         if (phase <= 0.25) {
@@ -61,12 +89,15 @@ public class OscillatorFactory {
                         }
                     }
                 };
-                
+            
+            // Oscillator with sawtooth waveform
             case "SAWTOOTH" :
                 return new Oscillator(freq,amp) {
+                    // anonymous class initialization
                     {
                         setCacheSize(10000);
                     }
+                    // sawtooth wave function
                     @Override
                     protected double waveFunction() {
                         double samp = 0.5;
@@ -87,13 +118,16 @@ public class OscillatorFactory {
                     }
                     
                 };
-                
+            
+            // Oscillator with sine waveform (default if no type match)
             case "SINE" :
             default :
                 return new Oscillator(freq, amp) {
+                    // anonymous class initialization
                     {
                         setCacheSize(10000);
                     }
+                    // sine wave function
                     @Override
                     protected double waveFunction() {
                         return Math.sin(phase*2.0*Math.PI);
