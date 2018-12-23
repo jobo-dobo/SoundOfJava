@@ -20,6 +20,7 @@ abstract class Component implements Chainable {
     protected ArrayList<String> inputPorts;     // input port names
     protected ArrayList<String> outputPorts;    // output port names
     protected boolean generateActive;           // true if actively generating
+    protected double rate;                      // sample rate
     
     /**
      * A simple data struct for containing a Chainable/port combination
@@ -45,17 +46,39 @@ abstract class Component implements Chainable {
      * "Primary"
      */
     Component() {
+        this(SoundPrinter.DEFAULT_RATE);
+    }
+    
+    /**
+     * Constructor, takes sample rate
+     * 
+     * @param rte   sample rate
+     */
+    Component(double rte) {
+        this(rte, false);
+    }
+    
+    /**
+     * Constructor, takes sample rate and primary input/output option flag
+     * 
+     * @param rte           sample rate
+     * @param addDefaults   will add "Primary" input and output if true
+     */
+    Component(double rte, boolean addDefaults) {
         inputs = new ArrayList<>();
         outputs = new ArrayList<>();
         inputSamples = new ArrayList<>();
         outputSamples = new ArrayList<>();
         inputPorts = new ArrayList<>();
         outputPorts = new ArrayList<>();
+        rate = rte;
         
         generateActive = true;
         
-        addInputPort("Primary");
-        addOutputPort("Primary");
+        if (addDefaults) {
+            addInputPort("Primary");
+            addOutputPort("Primary");
+        }
     }
     
     /**
@@ -65,6 +88,20 @@ abstract class Component implements Chainable {
      */
     @Override
     public boolean isGenerating() { return generateActive; }
+    
+    /**
+     * Gets the sample rate
+     * 
+     * @return  sample rate
+     */
+    public double getRate() { return rate; }
+    
+    /**
+     * Sets the sample rate
+     * 
+     * @param rte   sample rate
+     */
+    public void setRate(double rte) { rate = rte; }
     
     /**
      * Creates a new input port, for use by child class constructors

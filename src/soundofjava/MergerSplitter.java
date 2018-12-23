@@ -8,7 +8,8 @@ package soundofjava;
 import java.util.ArrayList;
 
 /**
- *
+ * A component that can mix inputs and multicast its output
+ * 
  * @author Jonathon Z
  */
 public class MergerSplitter extends Component {
@@ -17,12 +18,7 @@ public class MergerSplitter extends Component {
     ArrayList<InputOption> options;
     
     MergerSplitter(int numInputs, int numOutputs) {
-        inputs = new ArrayList<>();
-        outputs = new ArrayList<>();
-        inputSamples = new ArrayList<>();
-        outputSamples = new ArrayList<>();
-        inputPorts = new ArrayList<>();
-        outputPorts = new ArrayList<>();
+        super();
         options = new ArrayList<>();
         
         outputStates = new ArrayList<>();
@@ -223,7 +219,7 @@ public class MergerSplitter extends Component {
         }
     }
     
-        /**
+    /**
      * Add a chainable to an input whose default output port is 0
      * 
      * @param c Chainable to add

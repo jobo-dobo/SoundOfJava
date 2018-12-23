@@ -43,6 +43,23 @@ public class SoundOfJava {
                 amOscillator.getOutputPort(),
                 sineOscillator2.getAMPort());
         
+        // set up envelope
+        Envelope env = new Envelope();
+        Envelope env2 = new Envelope();
+        Envelope env3 = new Envelope();
+        env.connectTo(sineOscillator,
+                env.getOutputPort(),
+                sineOscillator.getAmplitudePort());
+        env.close();
+        env2.connectTo(sineOscillator2,
+                env2.getOutputPort(),
+                sineOscillator2.getAmplitudePort());
+        env2.close();
+        env3.connectTo(sineOscillator3,
+                env3.getOutputPort(),
+                sineOscillator3.getAmplitudePort());
+        env3.close();
+        
         //int next = (int)(Math.random()*40000);
         
         // Add our three tone generators to a mixer
@@ -62,6 +79,17 @@ public class SoundOfJava {
             //sineOscillator.setFrequency(Hertz);
             //sineOscillator2.setFrequency(Hertz2);
             //sineOscillator3.setFrequency(Hertz3);
+            
+            if (i%(int)rate==(int)(rate*0.7)) {
+                env.close();
+                env2.close();
+                env3.close();
+            }
+            if (i%(int)rate==0) {
+                env.open();
+                env2.open();
+                env3.open();
+            }
             
             // generate next sample
             mixer.generate();

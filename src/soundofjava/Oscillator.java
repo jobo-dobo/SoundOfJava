@@ -5,8 +5,6 @@
  */
 package soundofjava;
 
-import java.util.ArrayList;
-
 /**
  * Oscillator class providing implementation for generating a waveform at
  * varying frequency and amplitude. Function for the waveform to generate
@@ -19,7 +17,6 @@ public class Oscillator extends Component {
     protected double phase;
     protected double[] waveCache;
     protected int cacheLength;
-    private double rate;
     private double frequency;
     private double amplitude;
     private int freqPort;
@@ -35,21 +32,14 @@ public class Oscillator extends Component {
      * 
      * @param frq       starting frequency at which to generate waveform
      * @param amp       starting amplitude at which to generate waveform
-     * @param rte       sample rate to step at
      * @param cacheOn   true enables caching of the wave function for improved 
      *                  performance
      */
-    public Oscillator(double frq, double amp, double rte, boolean cacheOn) {
-        inputs = new ArrayList<>();
-        outputs = new ArrayList<>();
-        inputSamples = new ArrayList<>();
-        outputSamples = new ArrayList<>();
-        inputPorts = new ArrayList<>();
-        outputPorts = new ArrayList<>();
+    public Oscillator(double frq, double amp, boolean cacheOn) {
+        super();
         
         frequency = frq;
         amplitude = amp;
-        rate = rte;
         phase = 0.0;
         
         freqPort = addInputPort("Frequency");
@@ -74,7 +64,7 @@ public class Oscillator extends Component {
      * @param amp   starting amplitude at which to generate waveform
      */
     public Oscillator(double frq, double amp) {
-        this(frq,amp,SoundPrinter.DEFAULT_RATE,true);
+        this(frq,amp,true);
     }
     
     /**
@@ -85,7 +75,7 @@ public class Oscillator extends Component {
      * @param frq   starting frequency at which to generate waveform
      */
     public Oscillator(double frq) {
-        this(frq,1,SoundPrinter.DEFAULT_RATE,true);
+        this(frq,1,true);
     }
     
     /**
