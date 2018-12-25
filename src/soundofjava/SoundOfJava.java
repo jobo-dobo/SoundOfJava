@@ -97,6 +97,7 @@ public class SoundOfJava {
             // switch solo channel after 5 seconds and 10 seconds
             if (i==rate*5) {
                 mixer.toggleSolo(1);
+        mixer.play();
             } else if (i==rate*10) {
                 mixer.toggleSolo(2);
             }
@@ -108,7 +109,7 @@ public class SoundOfJava {
         }
         
         // Mixer plays its generated output
-        mixer.play();
+        //mixer.play();
 
         // To prove the multithreading works!
         System.out.println("Does the multithreading work?");

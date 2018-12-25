@@ -199,10 +199,12 @@ public class SoundPrinter {
                 
                 // Output one sample at a time from buffer until end of 
                 // current buffer is reached or stop state is triggered
-                for (int opos = 0; opos<BUFFER_SIZE && !sPrinter.isStopped();
+                /*for (int opos = 0; opos<BUFFER_SIZE && !sPrinter.isStopped();
                         opos+=sampleBytes) {
                     sourceDataLine.write(outBuff, opos, sampleBytes);
-                }
+                }*/
+                
+                sourceDataLine.write(outBuff, 0, BUFFER_SIZE);
             }
             // Stop state triggered or buffer queue emptied
             sourceDataLine.drain();

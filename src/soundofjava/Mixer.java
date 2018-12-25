@@ -12,7 +12,6 @@ package soundofjava;
 public class Mixer extends MergerSplitter {
     SoundPrinter soundPrinter;
     boolean isPlaying;
-    private Thread outThread;
     
     /**
      * Default constructor, creates 8 channels
@@ -124,19 +123,10 @@ public class Mixer extends MergerSplitter {
      * Start playing generated and queued samples to audio output
      */
     public void play() {
-        // Return if already playing
-        if (isPlaying == true || outThread != null && outThread.isAlive()) return;
-
-        // Otherwise create writer and kick off thread
-        isPlaying  = true;
-        outThread = new Thread(new MixGenerator(this));
-        outThread.start();
-        
-        /*for (int i = 0; i < 2048 && isPlaying; i++) {
-                generate();
-            }
-        if (isPlaying) { soundPrinter.play(); }
-        while (isPlaying) { generate(); }*/
+        if (!isPlaying) {
+            isPlaying = true;
+            soundPrinter.play();
+        }
     }
     
     /**
@@ -147,32 +137,5 @@ public class Mixer extends MergerSplitter {
         soundPrinter.putEnd();
         soundPrinter.stop();
         isPlaying = false;
-    }
-    
-    /**
-     * Nested class used for thread that writes to audio output
-     */
-    private class MixGenerator implements Runnable  {
-        Mixer mixer;
-        SoundPrinter sPrinter;
-        
-        /**
-         * Constructor which takes the Mixer
-         * 
-         * @param m the Mixer writing to output
-         */
-        MixGenerator(Mixer m) {
-            mixer = m;
-            sPrinter = m.soundPrinter;
-        }
-        
-        @Override
-        public void run() {
-            for (int i = 0; i < 2048 && mixer.isPlaying(); i++) {
-                mixer.generate();
-            }
-            if (mixer.isPlaying()) { sPrinter.play(); }
-            while (mixer.isPlaying()) { mixer.generate(); }
-        }
     }
 }
